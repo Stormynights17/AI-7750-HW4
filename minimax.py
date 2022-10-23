@@ -36,21 +36,30 @@ def calculate_hn(state, player):
     countO = 0
     score = 0
     #find num of 2-side-open-3-in-row
-    countX, countO = two_side_open_3_in_row(state)
+    count2side3 = two_side_open_3_in_row(state, player)
 
 
 
-def two_side_open_3_in_row(state):
+def two_side_open_3_in_row(state, player):
+    me = 'X'
+    them = 'O'
+    if player == 2:
+        me = 'O'
+        them = 'X'
+
     #check vertical
-    countX = 0
+    count = 0
     for i in range(game_columns):
         test = True
-        #check 1 and 5 are not right
-        if (state[0][i] != 'X' && state[4][i] != 'X'):
-            #check 2-4 are right
-            for j in range()
+        #check 0 and 4 are not right
+        if (state[0][i] != me && state[4][i] != me):
+            #check 1-3 are right
+            if (state[1][i] == state[2][i] == state[3][i] == me):
+                count++;
 
-
+    #check horizontal
+    #check diagonal LtoR
+    #check diagonal RtoL
 
 
 #checks the gameboard for a winner (someone has 4 in a row)
@@ -88,9 +97,9 @@ def check_game_over(gameboard):
             if test:
                 return test, player
 
-    #check diagonal rtoL - must start between [1,4] and [2,6]
-    for i in range(1,3):
-        for j in range(4,7):
+    #check diagonal rtoL - must start between [0,3] and [1,5]
+    for i in range(0,2):
+        for j in range(3,6):
             countO = 0
             countX = 0
             for n in range(4):
