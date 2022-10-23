@@ -32,8 +32,6 @@ def minimax_decision(state, player):
     # generate all possible moves by player who's turn, then generate for that move all possible moves by other players
 
 def calculate_hn(state, player):
-    countX = 0
-    countO = 0
     score = 0
     #find num of 2-side-open-3-in-row
     count2side3 = two_side_open_3_in_row(state, player)
@@ -42,24 +40,62 @@ def calculate_hn(state, player):
 
 def two_side_open_3_in_row(state, player):
     me = 'X'
-    them = 'O'
     if player == 2:
         me = 'O'
-        them = 'X'
+    count = 0
 
     #check vertical
-    count = 0
     for i in range(game_columns):
-        test = True
-        #check 0 and 4 are not right
-        if (state[0][i] != me) and (state[4][i] != me):
+        #check 0 and 4 are open
+        if state[0][i] == state[4][i] == '-':
             #check 1-3 are right
             if state[1][i] == state[2][i] == state[3][i] == me:
                 count += 1
 
     #check horizontal
-    #check diagonal LtoR
-    #check diagonal RtoL
+    for j in range(game_rows):
+        for k in range(1,3):
+            #check k-1 and k+3 are open
+            if state[j][k-1] == state[j][k+3] == '-':
+                #check k, k+1, and k+2 are right
+                if state[j][k] == state[j][k+1] == state[j][k+2] == me:
+                    count += 1
+
+    #check diagonal LtoR - must begin at [1,1] or [1,2]
+    for j in range(1,3):
+        if state[0][j-1] == state[4][j+3] == '-':
+            if state[1][j] == state[2][j+1] == state[3][j+2] == me:
+                count += 1
+
+    #check diagonal RtoL - must begin at [1,3] or [1,4]
+    for j in range(3,5):
+        if state[0][j+1] == state[4][j-3] == '-':
+            if state[1][j] == state[2][j-1] == state[3][j-2] == me:
+                count += 1
+
+    return count
+
+def one_side_open_3_in_row(state, player):
+    me = 'X'
+    if player == 2:
+        me = 'O'
+    count = 0
+    #check horizontal - touching edge
+    for i in range(game_rows):
+        if (state[i][0] == state[i][1] == state[i][2] == me) and (state[i][3] == '-'):
+            count += 1
+        else if (state[i][2] == '-') and (state[i][3] == state[i][4] == state[i][5] == me):
+            count += 1
+
+    #check vertical - touching edge
+    for j in range(game_columns):
+        if (state[0][j] == state[1][j] == state[2][j] == me) and (state[3][j] == '-'):
+            count += 1
+        else if (state[1][j] == '-') and (state[2][j] == state[3][j] == state[4][j] == me):
+            count += 1
+
+    #check horizontal LtoR - touching edge
+
 
 
 #checks the gameboard for a winner (someone has 4 in a row)
