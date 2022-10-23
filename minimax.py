@@ -1,12 +1,13 @@
 game_rows = 5
 game_columns = 6
-gameboard = [['-' for i in range(cols)] for j in range(rows)]
+gameboard = [['-' for i in range(game_columns)] for j in range(game_rows)]
 
 #first moves by players
 #Player 1 (X) puts X at [3,4]
 gameboard[2][3] = 'X'
 #Player 2 (O) puts O at [3,3]
 gameboard[2][2] = 'O'
+
 
 for row in gameboard:
     print(row)
@@ -20,16 +21,61 @@ def play_game(gameboard, turn):
     while not terminate:
         if turn == 1:
             #player 1 makes a move
-            minimax_decision(gameboard, 1)
+            two_ply_minimax(gameboard)
+            turn = 2
         if turn == 2:
             #player 2 makes a move
-            minimax_decision(gameboard, 2)
+            four_ply_minimax(gameboard)
+            turn = 1
+
         terminate, winner = check_game_over(gameboard)
     print('winner: ' + str(winner))
 
+
+def move_available(state, i, j, player_letter):
+    if state[i+1][j] == player_letter:
+        return True
+    if state[i+1][j+1] == player_letter:
+        return True
+    if state[i][j+1] == player_letter:
+        return True
+    if state[i-1][j+1] == player_letter:
+        return True
+    if state[i-1][j] == player_letter:
+        return True
+    if state[i-1][j-1] == player_letter:
+        return True
+    if state[i][j-1] == player_letter:
+        return True
+    if state[i+1][j-1] == 'X':
+        return True
+    return False
+
+
 # makes a decision
-def minimax_decision(state, player):
-    # generate all possible moves by player who's turn, then generate for that move all possible moves by other players
+def two_ply_minimax(state, i, j):
+    # generate all possible moves by player
+    possible_moves = []
+    for j in range(game_columns):
+        for i in range(game_rows):
+            if move_available(state, i, j, 'X'):
+                possible_moves.append([i, j])
+    # if any move wins
+        # select lowest winnning move
+    # else
+        # get heuristics
+        # select
+
+    return
+
+def four_ply_minimax(state):
+    # generate all possible moves by player
+    # if any move wins
+        # select lowest winnning move
+    # else
+        # get heuristics
+        # select
+    return
 
 def calculate_hn(state, player):
     score = 0
