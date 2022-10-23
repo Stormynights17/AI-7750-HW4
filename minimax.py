@@ -4,9 +4,9 @@ gameboard = [['-' for i in range(cols)] for j in range(rows)]
 
 #first moves by players
 #Player 1 (X) puts X at [3,4]
-gameboard[2,3] = 'X'
+gameboard[2][3] = 'X'
 #Player 2 (O) puts O at [3,3]
-gameboard[2,2] = 'O'
+gameboard[2][2] = 'O'
 
 for row in gameboard:
     print(row)
@@ -17,19 +17,19 @@ def play_game(gameboard, turn):
     #player 1 and 2 should make moves back and forth using minimax_decision
     terminate = False
     winner = 0
-    while(!terminate):
-        if (turn==1):
+    while not terminate:
+        if turn == 1:
             #player 1 makes a move
             minimax_decision(gameboard, 1)
-        if (turn==2):
+        if turn == 2:
             #player 2 makes a move
             minimax_decision(gameboard, 2)
         terminate, winner = check_game_over(gameboard)
     print('winner: ' + str(winner))
 
-#makes a decision
+# makes a decision
 def minimax_decision(state, player):
-    #generate all possible moves by player who's turn, then generate for that move all possible moves by other players
+    # generate all possible moves by player who's turn, then generate for that move all possible moves by other players
 
 def calculate_hn(state, player):
     countX = 0
@@ -52,10 +52,10 @@ def two_side_open_3_in_row(state, player):
     for i in range(game_columns):
         test = True
         #check 0 and 4 are not right
-        if (state[0][i] != me && state[4][i] != me):
+        if (state[0][i] != me) and (state[4][i] != me):
             #check 1-3 are right
-            if (state[1][i] == state[2][i] == state[3][i] == me):
-                count++;
+            if state[1][i] == state[2][i] == state[3][i] == me:
+                count += 1
 
     #check horizontal
     #check diagonal LtoR
@@ -112,15 +112,15 @@ def check_game_over(gameboard):
 
 def countXO(n, countX, countO):
     if n == 'O':
-        countO++
+        countO += 1
     elif n == 'X':
-        countX++
+        countX +=1
     return countO, countX
 
-def checkXO(counX, countO):
+def checkXO(countX, countO):
     if countX >= 4:
         return True, 1
     if countO >= 4:
         return True, 2
-    else
+    else:
         return False, 0
