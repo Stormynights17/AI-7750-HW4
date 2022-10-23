@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 
 class Node:
     def __init__(self, state, heuristic, children, depth):
@@ -72,12 +72,34 @@ def move_available(state, i, j, player_letter):
 # makes a decision
 def two_ply_minimax(state, i, j):
     # generate all possible moves by player
+    root = Node(state, calculate_hn(state, 1), [], 0)
     level_1_possible_moves = []
     for j in range(game_columns):
         for i in range(game_rows):
             if move_available(state, i, j, 'X'):
                 level_1_possible_moves.append([i, j])
     # generate opponent moves
+    for k in range(len(level_1_possible_moves)):
+        i = level_1_possible_moves[k][0]
+        j = level_1_possible_moves[k][1]
+        new_state = deepcopy(state)
+        new_state[i][j] = 'X'
+        child = Node(new_state, calculate_hn(new_state, 1), [], 1)
+        root.children.append(child)
+    for k in range(len(root.children)):
+        level_2_possible_moves = []
+        for j in range(game_columns):
+            for i in range(game_rows):
+                if move_available(root.children[k].state, i, j, 'O'):
+                    level_2_possible_moves.append([i, j])
+        for l in range(len(level_2_possible_moves)):
+            i = level_2_possible_moves[l][0]
+            j = level_2_possible_moves[l][1]
+            new_state = deepcopy(state)
+            new_state[i][j] = 'O'
+            child = Node(new_state, calculate_hn(new_state, 1), [], 2)
+            root.children.append(child)
+        
     # pick move that minimizes Os options
     # set global game board
     return
