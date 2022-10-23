@@ -79,9 +79,21 @@ def four_ply_minimax(state):
 
 def calculate_hn(state, player):
     score = 0
+    them = 2
+    if (player == 2):
+        them = 1
     #find num of 2-side-open-3-in-row
-    count2side3 = two_side_open_3_in_row(state, player)
+    count2side3me = two_side_open_3_in_row(state, player)
+    count2side3them = two_side_open_3_in_row(state, them)
+    count1side3me = one_side_open_3_in_row(state, player)
+    count1side3them = one_side_open_3_in_row(state, them)
 
+    count2side2me = two_side_open_2_in_row(state, player)
+    count2side2them = two_side_open_2_in_row(state, them)
+    count1side2me = one_side_open_2_in_row(state, player)
+    count1side2them = one_side_open_2_in_row(state, them)
+
+    return 200*count2side3me - 80*count2side3them + 150*count1side3me - 40*count2side3them + 20*count2side2me - 15*count2side2them + 5*count1side2me - 2*count1side2them
 
 
 def two_side_open_3_in_row(state, player):
@@ -140,9 +152,118 @@ def one_side_open_3_in_row(state, player):
         else if (state[1][j] == '-') and (state[2][j] == state[3][j] == state[4][j] == me):
             count += 1
 
-    #check horizontal LtoR - touching edge
+    #check diagonal LtoR - touching edge
+    startingpoint = [(1,0), (0,0), (0,1), (0,2)]
+    for k in range(len(startingpoint)):
+        i = startingpoint[k][0]
+        j = startingpoint[k][1]
+        if (state[i][j] == state[i+1][j+1] == state[i+2][j+2] == me) and (state[i+3][j+3] == '-'):
+            count += 1
+    startingpointB = [(4,3), (4,4), (4,5), (3,5)]
+    for k in range(len(startingpointB)):
+        i = startingpointB[k][0]
+        j = startingpointB[k][1]
+        if (state[i][j] == state[i-1][j-1] == state[i-2][j-2] == me) and (state[i-3][j-3] == '-'):
+            count += 1
 
+    #check diagonal RtoL - touching edge
+    startingpointC = [(0,3), (0,4), (0,5), (1,5)]
+    for k in range(len(startingpointC)):
+        i = startingpointC[k][0]
+        j = startingpointC[k][1]
+        if (state[i][j] == state[i+1][j-1] == state[i+2][j-2] == me) and (state[i+3][j-3] == '-'):
+            count += 1
+    startingpointD = [(3,0), (4,0), (4,1), (4,2)]
+    for k in range(len(startingpointD)):
+        i = startingpointD[k][0]
+        j = startingpointD[k][1]
+        if (state[i][j] == state[i-1][j+1] == state[i-2][j+2] == me) and (state[i-3][j+3] == '-'):
+            count += 1
 
+def two_side_open_2_in_row(state, player):
+    me = 'X'
+    if player == 2:
+        me = 'O'
+    count = 0
+
+    #check horizontal
+    for j in range(game_rows):
+        for k in range(1,4):
+            #check k-1 and k+2 are open
+            if state[j][k-1] == state[j][k+2] == '-':
+                #check k, k+1 are right
+                if state[j][k] == state[j][k+1] == me:
+                    count += 1
+
+    #check vertical
+    for i in range(game_columns):
+        for k in range(1,3):
+            #check k-1 and k+2 are open
+            if state[k-1][i] == state[k+2][i] == '-':
+                #check k, k+1 are right
+                if state[k][i] == state[k+1][i] == me:
+                    count += 1
+
+    #check diagonal LtoR - must begin between [1,1] and [2,2]
+    for i in range(1,3):
+        for j in range(1,3):
+            if state[i-1][j-1] == state[i+2][j+2] == '-':
+                if state[i][j] == state[i+1][j+1] == me:
+                    count += 1
+
+    #check diagonal RtoL - must begin between [1,2] and [2,4]
+    for i in range(1,3):
+        for j in range(2,5):
+            if state[i-1][j+1] == state[i+2][j-2] == '-':
+                if state[i][j] == state[i+1][j-1] == me:
+                    count += 1
+
+def one_side_open_2_in_row(state, player):
+    me = 'X'
+    if player == 2:
+        me = 'O'
+    count = 0
+    #check horizontal - touching edge
+    for i in range(game_rows):
+        if (state[i][0] == state[i][1] == me) and (state[i][2] == '-'):
+            count += 1
+        if (state[i][3] == '-') and (state[i][4] == state[i][5] == me):
+            count += 1
+
+    #check vertical - touching edge
+    for j in range(game_columns):
+        if (state[0][j] == state[1][j] == me) and (state[2][j] == '-'):
+            count += 1
+        else if (state[2][j] == '-') and (state[3][j] == state[4][j] == me):
+            count += 1
+
+    #check diagonal LtoR - touching edge
+    startingpoint = [(2,0), (1,0), (0,0), (0,1), (0,2), (0,3)]
+    for k in range(len(startingpoint)):
+        i = startingpoint[k][0]
+        j = startingpoint[k][1]
+        if (state[i][j] == state[i+1][j+1] == me) and (state[i+2][j+2] == '-'):
+            count += 1
+    startingpointB = [(4,2), (4,3), (4,4), (4,5), (3,5), (2,5)]
+    for k in range(len(startingpointB)):
+        i = startingpointB[k][0]
+        j = startingpointB[k][1]
+        if (state[i][j] == state[i-1][j-1] == me) and (state[i-2][j-2] == '-'):
+            count += 1
+
+    #check diagonal RtoL - touching edge
+    startingpointC = [(0,2), (0,3), (0,4), (0,5), (1,5), (2,5)]
+    for k in range(len(startingpointC)):
+        i = startingpointC[k][0]
+        j = startingpointC[k][1]
+        if (state[i][j] == state[i+1][j-1] == me) and (state[i+2][j-2] == '-'):
+            count += 1
+    startingpointD = [(2,0), (3,0), (4,0), (4,1), (4,2), (4,3)]
+    for k in range(len(startingpointD)):
+        i = startingpointD[k][0]
+        j = startingpointD[k][1]
+        if (state[i][j] == state[i-1][j+1] == me) and (state[i-2][j+2] == '-'):
+            count += 1
 
 #checks the gameboard for a winner (someone has 4 in a row)
 def check_game_over(gameboard):
