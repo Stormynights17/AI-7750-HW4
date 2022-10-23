@@ -1,3 +1,12 @@
+import copy
+
+class Node:
+    def __init__(self, state, heuristic, children, depth):
+        self.state = state
+        self.heuristic = heuristic
+        self.children = children
+        self.depth
+
 game_rows = 5
 game_columns = 6
 gameboard = [['-' for i in range(game_columns)] for j in range(game_rows)]
@@ -33,43 +42,53 @@ def play_game(gameboard, turn):
 
 
 def move_available(state, i, j, player_letter):
-    if state[i+1][j] == player_letter:
-        return True
-    if state[i+1][j+1] == player_letter:
-        return True
-    if state[i][j+1] == player_letter:
-        return True
-    if state[i-1][j+1] == player_letter:
-        return True
-    if state[i-1][j] == player_letter:
-        return True
-    if state[i-1][j-1] == player_letter:
-        return True
-    if state[i][j-1] == player_letter:
-        return True
-    if state[i+1][j-1] == 'X':
-        return True
+    if i + 1 < 5:
+        if state[i+1][j] == player_letter:
+            return True
+    if i + 1 < 5 and j + 1 < 6:
+        if state[i+1][j+1] == player_letter:
+            return True
+    if j + 1 < 6:
+        if state[i][j+1] == player_letter:
+            return True
+    if i - 1 > -1 and j + 1 < 6:
+        if state[i-1][j+1] == player_letter:
+            return True
+    if i - 1 > -1:
+        if state[i-1][j] == player_letter:
+            return True
+    if i - 1 > -1 and j - 1 > -1:
+        if state[i-1][j-1] == player_letter:
+            return True
+    if j - 1 > -1:
+        if state[i][j-1] == player_letter:
+            return True
+    if i + 1 < 5 and j - 1 > 0:
+        if state[i+1][j-1] == player_letter:
+            return True
     return False
 
 
 # makes a decision
 def two_ply_minimax(state, i, j):
     # generate all possible moves by player
-    possible_moves = []
+    level_1_possible_moves = []
     for j in range(game_columns):
         for i in range(game_rows):
             if move_available(state, i, j, 'X'):
-                possible_moves.append([i, j])
-    # if any move wins
-        # select lowest winnning move
-    # else
-        # get heuristics
-        # select
-
+                level_1_possible_moves.append([i, j])
+    # generate opponent moves
+    # pick move that minimizes Os options
+    # set global game board
     return
 
 def four_ply_minimax(state):
     # generate all possible moves by player
+    possible_moves = []
+    for j in range(game_columns):
+        for i in range(game_rows):
+            if move_available(state, i, j, 'O'):
+                possible_moves.append([i, j])
     # if any move wins
         # select lowest winnning move
     # else
