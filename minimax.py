@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+import time
 
 class Node:
     def __init__(self, state, heuristic, children, depth):
@@ -27,61 +27,77 @@ for row in gameboard:
 
 # gameboard is the starting state of the game
 # turn is who's turn it is
-def play_game(gameboard, turn):
+def play_game(state, player):
     # player 1 and 2 should make moves back and forth using minimax_decision
     terminate = False
     winner = 0
-    while not terminate:
-        if turn == 1:
+    while not terminate and state:
+        if player == 1:
             # player 1 makes a move
-            gameboard = two_ply_minimax(gameboard)
-            for row in gameboard:
+            start = time.process_time()
+            print("X's turn")
+            state = two_ply_minimax(state)
+            end = time.process_time()
+            print("CPU time: " + str(end-start))
+            for row in state:
                 print(row)
-            turn = 2
-        if turn == 2:
+            print("*************************")
+            player = 2
+        if player == 2:
             # player 2 makes a move
-            gameboard = four_ply_minimax(gameboard)
-            for row in gameboard:
+            start = time.process_time()
+            print("O's turn")
+            state = four_ply_minimax(state)
+            end = time.process_time()
+            print("CPU time: " + str(end-start))
+            for row in state:
                 print(row)
-            turn = 1
+            print("*************************")
+            player = 1
 
-        terminate, winner = check_game_over(gameboard)
-    print('winner: ' + str(winner))
+        terminate, winner = check_game_over(state)
+    if winner == 1:
+        print('winner: player 2')
+    else:
+        print('winner: player 1')
 
 
 def move_available(state, i, j, player_letter):
-    if state[i][j] == '-':
-        if i + 1 < 5:
-            if state[i + 1][j] == player_letter:
-                return True
-        if i + 1 < 5 and j + 1 < 6:
-            if state[i + 1][j + 1] == player_letter:
-                return True
-        if j + 1 < 6:
-            if state[i][j + 1] == player_letter:
-                return True
-        if i - 1 > -1 and j + 1 < 6:
-            if state[i - 1][j + 1] == player_letter:
-                return True
-        if i - 1 > -1:
-            if state[i - 1][j] == player_letter:
-                return True
-        if i - 1 > -1 and j - 1 > -1:
-            if state[i - 1][j - 1] == player_letter:
-                return True
-        if j - 1 > -1:
-            if state[i][j - 1] == player_letter:
-                return True
-        if i + 1 < 5 and j - 1 > 0:
-            if state[i + 1][j - 1] == player_letter:
-                return True
-    return False
+    if state:
+        if state[i][j] == '-':
+            if i + 1 < 5:
+                if state[i + 1][j] == player_letter:
+                    return True
+            if i + 1 < 5 and j + 1 < 6:
+                if state[i + 1][j + 1] == player_letter:
+                    return True
+            if j + 1 < 6:
+                if state[i][j + 1] == player_letter:
+                    return True
+            if i - 1 > -1 and j + 1 < 6:
+                if state[i - 1][j + 1] == player_letter:
+                    return True
+            if i - 1 > -1:
+                if state[i - 1][j] == player_letter:
+                    return True
+            if i - 1 > -1 and j - 1 > -1:
+                if state[i - 1][j - 1] == player_letter:
+                    return True
+            if j - 1 > -1:
+                if state[i][j - 1] == player_letter:
+                    return True
+            if i + 1 < 5 and j - 1 > 0:
+                if state[i + 1][j - 1] == player_letter:
+                    return True
+        return False
 
 
 # makes a decision
 def two_ply_minimax(state):
+    node_counter = 0
     # generate all possible moves by player
     root = Node(state, calculate_hn(state, 1), [], 0)
+    node_counter += 1
     level_1_possible_moves = []
     for j in range(game_columns):
         for i in range(game_rows):
@@ -94,6 +110,7 @@ def two_ply_minimax(state):
         new_state = deepcopy(state)
         new_state[i][j] = 'X'
         child = Node(new_state, 2000, [], 1)  # 2000 equals infinity
+        node_counter += 1
         root.children.append(child)
     # generate level 2
     for k in range(len(root.children)):
@@ -108,6 +125,7 @@ def two_ply_minimax(state):
             new_state = deepcopy(root.children[k].state)
             new_state[i][j] = 'O'
             child = Node(new_state, calculate_hn(new_state, 1), [], 2)
+            node_counter += 1
             if child.heuristic < root.children[k].heuristic:
                 root.children[k].heuristic = child.heuristic
             root.children[k].children.append(child)
@@ -122,13 +140,16 @@ def two_ply_minimax(state):
             temp_max = root.children[m].heuristic
             temp_state = deepcopy(root.children[m].state)
     # set global game board
+    print("Number of nodes generated: " + str(node_counter))
     return temp_state
 
 
-# CAUTION: ONLY DOES 2 PLYS 
+
 def four_ply_minimax(state):
+    node_counter = 0
     # generate all possible moves by player
     root = Node(state, calculate_hn(state, 1), [], 0)
+    node_counter += 1
     level_1_possible_moves = []
     for j in range(game_columns):
         for i in range(game_rows):
@@ -141,6 +162,7 @@ def four_ply_minimax(state):
         new_state = deepcopy(state)
         new_state[i][j] = 'O'
         child = Node(new_state, 2000, [], 1)  # 2000 equals infinity
+        node_counter += 1
         root.children.append(child)
     # generate level 2
     for k in range(len(root.children)):
@@ -155,6 +177,7 @@ def four_ply_minimax(state):
             new_state = deepcopy(root.children[k].state)
             new_state[i][j] = 'X'
             child = Node(new_state, calculate_hn(new_state, 1), [], 2)
+            node_counter += 1
             if child.heuristic < root.children[k].heuristic:
                 root.children[k].heuristic = child.heuristic
             root.children[k].children.append(child)
@@ -169,64 +192,69 @@ def four_ply_minimax(state):
             temp_max = root.children[m].heuristic
             temp_state = deepcopy(root.children[m].state)
     # set global game board
+    print("Number of nodes generated: " + str(node_counter))
     return temp_state
 
 
 def calculate_hn(state, player):
-    score = 0
-    them = 2
-    if (player == 2):
-        them = 1
-    # find num of 2-side-open-3-in-row
-    count2side3me = two_side_open_3_in_row(state, player)
-    count2side3them = two_side_open_3_in_row(state, them)
-    count1side3me = one_side_open_3_in_row(state, player)
-    count1side3them = one_side_open_3_in_row(state, them)
+    if state:
+        score = 0
+        them = 2
+        if (player == 2):
+            them = 1
+        # find num of 2-side-open-3-in-row
+        count2side3me = two_side_open_3_in_row(state, player)
+        count2side3them = two_side_open_3_in_row(state, them)
+        count1side3me = one_side_open_3_in_row(state, player)
+        count1side3them = one_side_open_3_in_row(state, them)
 
-    count2side2me = two_side_open_2_in_row(state, player)
-    count2side2them = two_side_open_2_in_row(state, them)
-    count1side2me = one_side_open_2_in_row(state, player)
-    count1side2them = one_side_open_2_in_row(state, them)
+        count2side2me = two_side_open_2_in_row(state, player)
+        count2side2them = two_side_open_2_in_row(state, them)
+        count1side2me = one_side_open_2_in_row(state, player)
+        count1side2them = one_side_open_2_in_row(state, them)
 
-    return 200 * count2side3me - 80 * count2side3them + 150 * count1side3me - 40 * count2side3them + 20 * count2side2me - 15 * count2side2them + 5 * count1side2me - 2 * count1side2them
+        return 200 * count2side3me - 80 * count2side3them + 150 * count1side3me - 40 * count2side3them + 20 * count2side2me - 15 * count2side2them + 5 * count1side2me - 2 * count1side2them
+    return None
 
 
 def two_side_open_3_in_row(state, player):
-    me = 'X'
-    if player == 2:
-        me = 'O'
-    count = 0
+    if state:
+        me = 'X'
+        if player == 2:
+            me = 'O'
+        count = 0
 
-    # check vertical
-    for i in range(game_columns):
-        # check 0 and 4 are open
-        if state[0][i] == state[4][i] == '-':
-            # check 1-3 are right
-            if state[1][i] == state[2][i] == state[3][i] == me:
-                count += 1
-
-    # check horizontal
-    for j in range(game_rows):
-        for k in range(1, 3):
-            # check k-1 and k+3 are open
-            if state[j][k - 1] == state[j][k + 3] == '-':
-                # check k, k+1, and k+2 are right
-                if state[j][k] == state[j][k + 1] == state[j][k + 2] == me:
+        # check vertical
+        for i in range(game_columns):
+            # check 0 and 4 are open
+            if state[0][i] == state[4][i] == '-':
+                # check 1-3 are right
+                if state[1][i] == state[2][i] == state[3][i] == me:
                     count += 1
 
-    # check diagonal LtoR - must begin at [1,1] or [1,2]
-    for j in range(1, 3):
-        if state[0][j - 1] == state[4][j + 3] == '-':
-            if state[1][j] == state[2][j + 1] == state[3][j + 2] == me:
-                count += 1
+        # check horizontal
+        for j in range(game_rows):
+            for k in range(1, 3):
+                # check k-1 and k+3 are open
+                if state[j][k - 1] == state[j][k + 3] == '-':
+                    # check k, k+1, and k+2 are right
+                    if state[j][k] == state[j][k + 1] == state[j][k + 2] == me:
+                        count += 1
 
-    # check diagonal RtoL - must begin at [1,3] or [1,4]
-    for j in range(3, 5):
-        if state[0][j + 1] == state[4][j - 3] == '-':
-            if state[1][j] == state[2][j - 1] == state[3][j - 2] == me:
-                count += 1
+        # check diagonal LtoR - must begin at [1,1] or [1,2]
+        for j in range(1, 3):
+            if state[0][j - 1] == state[4][j + 3] == '-':
+                if state[1][j] == state[2][j + 1] == state[3][j + 2] == me:
+                    count += 1
 
-    return count
+        # check diagonal RtoL - must begin at [1,3] or [1,4]
+        for j in range(3, 5):
+            if state[0][j + 1] == state[4][j - 3] == '-':
+                if state[1][j] == state[2][j - 1] == state[3][j - 2] == me:
+                    count += 1
+
+        return count
+    return -1
 
 
 def one_side_open_3_in_row(state, player):
@@ -369,49 +397,56 @@ def one_side_open_2_in_row(state, player):
 
 # checks the gameboard for a winner (someone has 4 in a row)
 def check_game_over(gameboard):
+    test = False
     # check horizontal
-    for i in range(game_rows):
-        for j in range(game_columns - 3):
-            countO = 0
-            countX = 0
-            for n in range(j, j + 4):
-                countX, countO = countXO(gameboard[i][n], countX, countO)
-        test, player = checkXO(countX, countO)
-        if test:
-            return test, player
-
-    # check vertical
-    for j in range(game_columns):
-        for i in range(game_rows - 3):
-            countO = 0
-            countX = 0
-            for n in range(i, i + 4):
-                countX, countO = countXO(gameboard[n][j], countX, countO)
-            test, player = checkXO(countX, countO)
+    if gameboard:
+        for i in range(game_rows):
+            for j in range(game_columns - 3):
+                countO = 0
+                countX = 0
+                for n in range(j, j + 4):
+                    # print("horizontal: " + str(i) + " " + str(j) + " " + str(n))
+                    countX, countO = countXO(gameboard[i][n], countX, countO)
+                test, player = checkXO(countX, countO)
             if test:
                 return test, player
 
-    # check diagonal LtoR - must start between [0,0] and [1,2]
-    for i in range(0, 2):
-        for j in range(0, 3):
+        # check vertical
+        for j in range(game_columns):
             countO = 0
             countX = 0
-            for n in range(4):
-                countX, countO = countXO(gameboard[i + n][j + n], countX, countO)
-            test, player = checkXO(countX, countO)
-            if test:
-                return test, player
+            for i in range(game_rows - 3):
+                for n in range(i, i + 4):
+                    # print("vertical: " + str(i) + " " + str(j) + " " + str(n))
+                    countX, countO = countXO(gameboard[n][j], countX, countO)
+                # print("X: " + str(countX) + " O: " + str(countO))
+                test, player = checkXO(countX, countO)
+                if test:
+                    return test, player
 
-    # check diagonal rtoL - must start between [0,3] and [1,5]
-    for i in range(0, 2):
-        for j in range(3, 6):
-            countO = 0
-            countX = 0
-            for n in range(4):
-                countX, countO = countXO(gameboard[i - n][j - n], countX, countO)
-            test, player = checkXO(countX, countO)
-            if test:
-                return test, player
+        # check diagonal LtoR - must start between [0,0] and [1,2]
+        for i in range(0, 2):
+            for j in range(0, 3):
+                countO = 0
+                countX = 0
+                for n in range(4):
+                    # print("diagonal L to R: " + str(i) + " " + str(j) + " " + str(n))
+                    countX, countO = countXO(gameboard[i + n][j + n], countX, countO)
+                test, player = checkXO(countX, countO)
+                if test:
+                    return test, player
+
+        # check diagonal rtoL - must start between [0,3] and [1,5]
+        for i in range(0, 2):
+            for j in range(3, 6):
+                countO = 0
+                countX = 0
+                for n in range(4):
+                    # print("diagonal R to L: " + str(i) + " " + str(j) + " " + str(n))
+                    countX, countO = countXO(gameboard[i - n][j - n], countX, countO)
+                test, player = checkXO(countX, countO)
+                if test:
+                    return test, player
 
     return False, 0
 
@@ -425,6 +460,7 @@ def countXO(n, countX, countO):
 
 
 def checkXO(countX, countO):
+    # print("X: " + str(countX) + " O: " + str(countO))
     if countX >= 4:
         return True, 1
     if countO >= 4:
