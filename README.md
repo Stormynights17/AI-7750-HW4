@@ -1,6 +1,6 @@
 # AI-7750-HW4
 Homework 4 for AI class 7750
-Olivia LaVal and Katelyn Van Dyke
+Olivia LaVal, Katelyn Van Dyke, and Malek Necibi
 
 Description of implementation:
 
